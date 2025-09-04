@@ -1,7 +1,16 @@
-# Aula prática 04-09-2025
+---
+title: "Explorando dados no R"
+subtitle: "Disciplina de Ciência de Dados 2025.2 - UESC"
+author: Gabriel Rodrigues
+date: 09-04-2025
+format: pdf
+---
 
+# Importando a base de dados
+
+```{r}
 # Importar dataset
-df <- read.csv("exploratory_analysis/gapminder_error.csv", header=TRUE)
+df <- read.csv("gapminder_error.csv", header=TRUE)
 
 # Checar coisas básicas
 ## dimensões da tabela
@@ -10,13 +19,17 @@ dim(df)
 colnames(df)
 ## começo da tabela
 head(df)
-
+```
 
 # Resumo da tabela
-summary(df)
 
+```{r}
+summary(df)
+```
 
 # Esses números estão corretos? Classes
+
+```{r}
 class(df)
 class(df$LifeExpectancy)
 class(df$Population)
@@ -26,15 +39,18 @@ class(df$Population)
 df$LifeExpectancy <- as.numeric(df$LifeExpectancy)
 ## resumir
 summary(df)
+```
 
-# transformar novamente
+## Transformar novamente
+
+```{r}
 df$Population <- as.numeric(df$Population)
 summary(df)
+```
 
+## Checar itens repetidos
 
-
-
-
+```{r}
 # Checar itens repetidos
 duplicated(df)
 ## Quantidade de duplicados
@@ -42,11 +58,11 @@ table(duplicated(df))
 ## Remover itens duplicados
 df2 <- unique(df)
 table(duplicated(df2))
-
-
-
+```
 
 # Remover valores incorretos - Expectativa de vida
+
+```{r}
 summary(df2)
 ## Expectativa de vida muito acima do normal
 df2[df2$LifeExpectancy == 142.10, ]
@@ -56,11 +72,11 @@ df2[df2$LifeExpectancy >= 100, ]
 df2 <- df2[-131,]
 ## Checar com summary()
 summary(df2)
-
-
-
+```
 
 # Remover valores incorretos - População
+
+```{r}
 df2[df2$Population == 1.840e+02, ]
 df2[df2$Country == "Uruguay", ]
 df2[df2$Population <= 1e+03, ]
@@ -71,3 +87,4 @@ df2 <- df2[df2$Population >= 1000, ]
 df2[df2$Country == "Uruguay", ]
 ## Checar tabela
 summary(df2)
+```
