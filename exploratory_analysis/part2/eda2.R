@@ -11,6 +11,7 @@ head(iris)
 dim(iris)
 
 
+
 ## Mostrar numero de valores ausentes (NAs)
 sum(is.na(iris)) 
 ### Mostrar NAs por coluna
@@ -29,7 +30,7 @@ mean(iris$Sepal.Length)
 mean(iris$Petal.Length)
 ### Mediana
 median(iris$Sepal.Length)
-median(iris$Petal.Length)
+median(iris$Species)
 
 ## Funções de Medidas de Dispersão
 
@@ -68,6 +69,7 @@ cor(iris[, c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")])
 
 ## Instalar pacote "skimr"
 ## install.packages("skimr")
+
 library(skimr)
 
 ## Testando com os nossos dados

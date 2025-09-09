@@ -5,3 +5,122 @@ author: Gabriel Rodrigues
 date: 09-09-2025
 format: pdf
 ---
+
+# PARTE 1 - Prospecção básica
+
+## Importar datasets básicos do R
+```{r}
+# Carregar pacote
+library(datasets)
+# Checar manual do pacote
+library(help = "datasets")
+```
+
+A partir da importação do pacote `datasets`, vamos importar o dataset "iris".
+```{r}
+## Selecionar dataset específico
+iris <- datasets::iris
+### Checar composição
+head(iris)
+dim(iris)
+```
+
+Alguns valores das tabelas podem ser vazios (`NA`), é bom compreender a completude dos dados.
+```{r}
+## Selecionar dataset específico
+iris <- datasets::iris
+
+## Mostrar numero de valores ausentes (NAs)
+sum(is.na(iris)) 
+### Mostrar NAs por coluna
+colSums(is.na(iris))
+```
+
+A função `summary` também mostra a quantidade de `NA`:
+```{r}
+## Selecionar dataset específico
+iris <- datasets::iris
+
+## Sumário básico
+summary(iris)
+```
+
+# PARTE 2 - Conceitos Importantes de EDA
+
+## Relembrando - Funções de Medidas de Tendência Central
+```{r}
+## Selecionar dataset específico
+iris <- datasets::iris
+
+### Média
+mean(iris$Sepal.Length)
+mean(iris$Petal.Length)
+### Mediana
+median(iris$Sepal.Length)
+median(iris$Petal.Length)
+```
+
+## Funções de Medidas de Dispersão
+```{r}
+## Selecionar dataset específico
+iris <- datasets::iris
+
+### Mínimo e Máximo
+min(iris$Sepal.Length)
+max(iris$Sepal.Length)
+
+### Variância e Desvio Padrão (sd)
+var(iris$Sepal.Length)
+sd(iris$Sepal.Length)
+## O desvio padrão é representado pela mesma unidade de medida dos dados
+```
+
+## Funções de Medidas de Relacionamento
+
+COVARIÂNCIA - Calcula a covariância entre duas variáveis. Ela indica a direção da relação linear entre elas.
+Uma covariância positiva indica que as variáveis se movem na mesma direção (quando uma aumenta, a outra tende a aumentar) e vice-versa.
+**Ponto de atenção**: O valor da covariância não tem uma interpretação padronizada. Seu valor depende das unidades de medida das variáveis.
+
+```{r}
+## Selecionar dataset específico
+iris <- datasets::iris
+
+cov(iris[, c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")])
+### Ou
+cov(iris[, c(1:4)])
+```
+
+CORRELAÇÃO - Calcula a correlação, que também mede a força e a direção da relação linear entre duas variáveis. 
+A grande vantagem é que o valor de correlação é padronizado e varia de -1 a 1.
+
+- Correlação próxima de 1: Relação linear positiva forte.
+- Correlação próxima de -1: Relação linear negativa forte.
+- Correlação próxima de 0: Nenhuma relação linear.
+
+```{r}
+## Selecionar dataset específico
+iris <- datasets::iris
+
+# Função de correlação
+cor(iris[, c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")])
+### Ou
+cor(iris[, c(1:4)])
+```
+
+# PARTE 3 - Pacotes específicos para EDA
+
+Instalar pacote `skimr` para criar um sumário geral de nossos dados.
+```{r}
+## Selecionar dataset específico
+iris <- datasets::iris
+
+# Instalar pacote "skimr"
+# install.packages("skimr")
+
+# Importar pacotes
+library(skimr)
+
+# Testar com nosso dataset
+skim(iris)
+```
+
