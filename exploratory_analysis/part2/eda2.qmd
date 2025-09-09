@@ -1,0 +1,7 @@
+---
+title: "Explorando dados no R - Parte 2"
+subtitle: "Disciplina de Ciência de Dados 2025.2 - UESC"
+author: Gabriel Rodrigues
+date: 09-09-2025
+format: pdf
+---
