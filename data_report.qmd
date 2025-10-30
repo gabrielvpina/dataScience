@@ -1,0 +1,36 @@
+---
+title: Relatório Formal com Tidyplots
+date: 2025-10-30
+
+author: 
+  - name: Gabriel Rodrigues
+    degrees: 
+      - MSc
+    id: gr
+    orcid: 0009-0005-2294-2845
+    email: gvpina.rodrigues@gmail.com
+    affiliation: 
+      - name: Universidade Estadual de Santa Cruz
+        city: Ilhéus
+        state: Bahia
+        url: www.uesc.br
+
+abstract: > 
+  Relatório formal de análise de dados feito utilizando a plataforma Quarto® com linguagem R. O relatório possui uma breve introdução dos dados juntamente com seu processamento e o delineamento de hipóteses. Testes estatísticos foram realizados para validar as hipóteses e o pacote Tidyplots foi utilizado para a construção de gráficos.
+keywords:
+  - Data Science
+  - Testes estatísticos
+  - Tidyplots
+
+format:
+    html:
+        toc: true
+        toc_float: true
+        self-contained: true
+---
+
+# Introdução  
+
+Esse relatório é complementar à Atividade Prática 06, realizada dia 28 de Outubro em sala de aula. O relatório possui o intuito de representar como um relatório de dados formal deve ser estruturado, juntamento com as operações de processamento de dados e códigos no R. 
+
+Os dados utilizados aqui serão 3
