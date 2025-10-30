@@ -33,4 +33,515 @@ format:
 
 Esse relatório é complementar à Atividade Prática 06, realizada dia 28 de Outubro em sala de aula. O relatório possui o intuito de representar como um relatório de dados formal deve ser estruturado, juntamento com as operações de processamento de dados e códigos no R. 
 
-Os dados utilizados aqui serão 3
+## Resumo dos dados
+
+Os dados utilizados aqui serão vindos da tabela `world-data-2023.csv`, que representa um compilado abrangente de indicadores globais por país, referente ao ano de 2023.
+
+As principais categorias de dados incluem:
+
+- Demografia e Geografia: Informações sobre População, Densidade (P/Km2), Área Terrestre (Km2), População Urbana, Taxa de Natalidade, Taxa de Fertilidade e Expectativa de Vida.
+
+- Economia e Finanças: Dados vitais como Produto Interno Bruto (PIB), Índice de Preços ao Consumidor (IPC e sua variação), Código da Moeda, Salário Mínimo, Receita Tributária (%), Taxa de Imposto Total, e o Preço da Gasolina.
+
+- Saúde e Educação: Indicadores sociais cruciais, incluindo Mortalidade Infantil e Materna, proporção de Médicos por Mil, Despesas de Saúde do bolso próprio, e as taxas de matrícula bruta nos ensinos primário e superior.
+
+- Meio Ambiente e Recursos: Métricas ambientais como as Emissões de CO2​ e a porcentagem de Terra Agrícola e Área Florestal.
+
+- Força de Trabalho e Segurança: Informações sobre a participação da Força de Trabalho, Taxa de Desemprego e o Tamanho das Forças Armadas.
+
+Em resumo, é um dataset de múltiplas facetas destinado a fornecer um perfil detalhado e estatístico de cada país.
+
+# Importando os dados
+
+Para importar esse dataset, utilizaremos a função `read.csv()` para importar um conjunto de dados diretamente da web. **Atenção:** Esse tipo de importação só é possível se os dados estiverem de forma integral no link. 
+ 
+```{r}
+
+df <- read.csv("https://raw.githubusercontent.com/gabrielvpina/dataScience/refs/heads/main/data/world-data-2023.csv")
+
+```
+
+Utilizando a função `skim` do pacote *skimr* nos dados:
+
+```{r}
+#| fig-width: 12
+
+# importar pacote
+library(skimr)
+# chamar função de resumo
+skim(df)
+```
+
+## Primeiras impressões
+
+Com o resumo dos dados em mãos, pode-se observar que diversas colunas que deveriam ser numéricas estão sendo lidas como strings. As principais causas são:
+
+- Uso de vírgula para representar decimais, enquanto o R utiliza pontos
+- Caracteres associados à porcentagens (ex: 23.12%)
+- Caracteres associados à valores monetários ("$") 
+
+Outra coisa para se atentar são os nomes das colunas, que antes continham espaços e símbolos na tabela original e agora tiveram modificações automáticas devido à função de importação do R.
+
+```{r}
+# nomes vindos da importação
+colnames(df)
+```
+
+Vamos checar agora o total de valores vazios `NAs` no dataset:
+
+```{r}
+# a função table() conta categorias do vetor gerado pela função is.na()
+table(is.na(df))
+```
+
+São 51 itens vazios em um total de 6774 itens totais da tabela, isso representa aproximadamente **0.75%** dos valores totais no nosso dataset.
+
+# Processamento dos dados
+
+Inicialmente vamos corrigir os nomes das colunas e as colunas com porcentagens que estão sendo lidas como `string` devido ao caractere "%".
+
+### Nomes das Colunas 
+
+A função `colnames()` retorna o nome das colunas de um dataset, ela também pode ser utilizada para enviar um novo conjunto de nomes para as colunas de um dataset.
+
+```{r}
+# vamos usar a função colnames(df) para ver as colunas originais e ir inserindo os novos nomes no vertor "novos_nomes"
+novos_nomes <- c(
+    "Pais",
+    "Densidade", # 'Density (P/Km2)'
+    "Abreviacao",
+    "TerraAgriculturaPercentual", # 'Agricultural Land( %)'
+    "AreaTerrestreKm2", # 'Land Area(Km2)'
+    "TamanhoForcasArmadas", # 'Armed Forces size'
+    "TaxaNatalidade", # 'Birth Rate'
+    "CodigoDiscagem", # 'Calling Code'
+    "CapitalCidadePrincipal", # 'Capital/Major City'
+    "EmissoesCO2", # 'Co2-Emissions'
+    "IPC", # 'CPI'
+    "MudancaIPCPercentual", # 'CPI Change (%)'
+    "CodigoMoeda", # 'Currency-Code'
+    "TaxaFertilidade", # 'Fertility Rate'
+    "AreaFlorestadaPercentual", # 'Forested Area (%)'
+    "PrecoGasolina", # 'Gasoline Price'
+    "PIB", # 'GDP'
+    "MatriculaPrimariaBrutaPercentual", # 'Gross primary education enrollment (%)'
+    "MatriculaSuperiorBrutaPercentual", # 'Gross tertiary education enrollment (%)'
+    "MortalidadeInfantil", # 'Infant mortality'
+    "MaiorCidade", # 'Largest city'
+    "ExpectativaVida", # 'Life expectancy'
+    "TaxaMortalidadeMaterna", # 'Maternal mortality ratio'
+    "SalarioMinimo", # 'Minimum wage'
+    "LinguaOficial", # 'Official language'
+    "GastoSaudeProprioBolso", # 'Out of pocket health expenditure'
+    "MedicosPorMil", # 'Physicians per thousand'
+    "Populacao",
+    "PopulacaoForcaTrabalhoPercentual", # 'Population: Labor force participation (%)'
+    "ReceitaFiscalPercentual", # 'Tax revenue (%)'
+    "TaxaImpostoTotal", # 'Total tax rate'
+    "TaxaDesemprego", # 'Unemployment rate'
+    "PopulacaoUrbana", # 'Urban_population'
+    "Latitude",
+    "Longitude"
+)
+
+# Usando a função colnames() para inserir os novos nomes de coluna
+colnames(df) <- novos_nomes
+
+# Mostrar novos nomes
+colnames(df)
+```
+
+## Corrigir colunas lidas como string
+
+### Colunas com porcentagem (%)
+
+Para corrigir as colunas que possuem um caractere `%` em seus itens, utiliza-se uma substituição por um item vazio (""). Para isso emprega-se a função `gsub()` para substituir `"%" -> ""`. Normalmente a função `gsub()` funciona individualmente para cada coluna, por isso deve-se utilizar a função `lapply()` associada a ela, de forma que `gsub()` funcione em um loop para as colunas selecionadas.
+
+```{r}
+# colunas com caractere de porcentagem (%)
+colunas_erradas <- c("TaxaDesemprego", "TaxaImpostoTotal", "ReceitaFiscalPercentual", "PopulacaoForcaTrabalhoPercentual", "GastoSaudeProprioBolso", "MatriculaSuperiorBrutaPercentual", "MatriculaPrimariaBrutaPercentual", "AreaFlorestadaPercentual", "MudancaIPCPercentual", "TerraAgriculturaPercentual")
+
+# aplicando gsub nas colunas escolhidas
+df[colunas_erradas] <- lapply(df[colunas_erradas], gsub, pattern = "%", replacement = "") # trocar porcentagem por vazio
+
+# transformando as colunas em numericas
+df[colunas_erradas] <- lapply(df[colunas_erradas], as.numeric)
+```
+
+### Colunas com cifrão ($)
+
+Com isso resolvemos as colunas com `%`, agora vamos aplicar a mesma lógica para colunas com cifrão `$`. Entretanto 0 cifrão é um metacaractere em expressões regulares que geralmente indica o fim da string. Para tratar o `$` como um caractere literal que você deseja remover, ele precisa ser "escapado" com barras invertidas duplas `\\$`.
+
+```{r}
+#| warning: false
+
+colunas_cifrao <- c("SalarioMinimo", "PrecoGasolina")
+
+df[colunas_cifrao] <- lapply(df[colunas_cifrao], gsub, pattern = "\\$", replacement = "")
+
+df[colunas_cifrao] <- lapply(df[colunas_cifrao], as.numeric)
+```
+
+### Colunas com vírgula
+
+A partir da substituição do cifrão nas colunas, é possível realizar a substituição das vírgulas nas colunas e convertê-las para colunas numéricas. Podemos checar com `head(df)` os nossos dados e selecionar as colunas erradas.
+
+É necessário fazer uma diferença, pois em colunas como `PopulacaoUrbana`, `Populacao`, `PIB` e `EmissoesCO2` existe um padrão diferente de notação, onde as vírgulas estão somente para diferenciar visualmente os milhates das centenas e das dezenas, e não uma representação decimal. 
+
+```{r}
+colunas_cifrao <- c("PIB")
+
+df[colunas_cifrao] <- lapply(df[colunas_cifrao], gsub, pattern = "\\$", replacement = "")
+
+colunas_virg <- c("PopulacaoUrbana", "Populacao", "PIB", "EmissoesCO2", "AreaTerrestreKm2", "Densidade", "TamanhoForcasArmadas")
+
+df[colunas_virg] <- lapply(df[colunas_virg], gsub, pattern = ",", replacement = "")
+
+df[colunas_virg] <- lapply(df[colunas_virg], as.numeric)
+```
+
+Agora todas as colunas estão formatadas para as análises estatísticas e gráficos.
+
+# Análises Univariadas
+
+A partir dos dados já convertidos podemos realizar análises de distribuição dos dados.
+
+### Densidade dos dados
+
+```{r}
+#| warning: false
+#| message: false
+#| fig-height: 8
+#| fig-width: 9
+
+# importar pacotes
+library(tidyverse)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+
+colunas_para_plotar <- c(
+    "TaxaNatalidade",
+    "TaxaFertilidade",
+    "ExpectativaVida",
+    "TaxaDesemprego",
+    "TerraAgriculturaPercentual",
+    "AreaTerrestreKm2",
+    "EmissoesCO2",
+    "AreaFlorestadaPercentual",
+    "MortalidadeInfantil",
+    "TaxaImpostoTotal",
+    "PrecoGasolina",
+    "PopulacaoUrbana",
+    "SalarioMinimo",
+    "MedicosPorMil",
+    "Populacao",
+    "PopulacaoForcaTrabalhoPercentual",
+    "Densidade",
+    "TamanhoForcasArmadas"
+)
+
+
+df_longo <- df %>%
+    select(all_of(colunas_para_plotar)) %>%
+    pivot_longer(
+        cols = all_of(colunas_para_plotar),
+        names_to = "Variavel",            
+        values_to = "Valor"               
+    )
+
+grafico_densidade <- ggplot(df_longo, aes(x = Valor)) +
+    geom_density(fill = "#2a78b5", alpha = 0.7, color = "white") +
+    # geom_histogram(bins = 30, fill = "#2a78b5", alpha = 0.7, color = "white") +
+    facet_wrap(~ Variavel, scales = "free", ncol = 3) +
+    labs(
+        title = "Distribuição de Indicadores Globais por País (2023)",
+        x = "Valor",
+        y = "Densidade"
+    ) +
+    theme_minimal() +
+    theme(
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        strip.text = element_text(face = "bold") 
+    )
+
+print(grafico_densidade)
+```
+
+### Teste de Normalidade 
+
+O teste de normalidade é crucial para verificar se os dados numéricos seguem uma distribuição normal, o que é um pré-requisito para muitos testes estatísticos paramétricos (como o Teste t de Student ou ANOVA).
+
+**Teste de Shapiro-Wilk**
+
+O teste de hipótese é:
+
+- H0​ (Hipótese Nula): Os dados seguem uma distribuição normal.
+- H1​ (Hipótese Alternativa): Os dados não seguem uma distribuição normal.
+
+```{r}
+# selecionando o mesmo conjunto de dados dos meus plots
+colunas_para_testar <- c(
+    "TaxaNatalidade",
+    "TaxaFertilidade",
+    "ExpectativaVida",
+    "TaxaDesemprego",
+    "TerraAgriculturaPercentual",
+    "AreaTerrestreKm2",
+    "EmissoesCO2",
+    "AreaFlorestadaPercentual",
+    "MortalidadeInfantil",
+    "TaxaImpostoTotal",
+    "PrecoGasolina",
+    "PopulacaoUrbana",
+    "SalarioMinimo",
+    "MedicosPorMil",
+    "Populacao",
+    "PopulacaoForcaTrabalhoPercentual",
+    "Densidade",
+    "TamanhoForcasArmadas"
+)
+
+# criar dataframe para armazenar os resultados
+resultados_normalidade <- data.frame(
+    Variavel = character(),
+    ShapiroWilk_p_value = numeric(),
+    Interpretacao = character(),
+    stringsAsFactors = FALSE
+)
+
+# realizar o teste de normalidade para todas as colunas selecionadas
+for (col in colunas_para_testar) {
+    # filtra valores não-ausentes (NA) para o teste
+    dados_filtrados <- na.omit(df[[col]])
+
+    if (length(dados_filtrados) < 3) {
+        p_value <- NA
+        interpretacao <- "Amostra muito pequena (N < 3)"
+    } else {
+        teste <- shapiro.test(dados_filtrados)
+        p_value <- teste$p.value
+
+        if (p_value < 0.05) {
+            interpretacao <- "Rejeita H0: Não Normal"
+        } else {
+            interpretacao <- "Não Rejeita H0: Distribuição Normal"
+        }
+    }
+
+    # adicionar o resultado ao dataframe
+    resultados_normalidade[nrow(resultados_normalidade) + 1, ] <- c(col, p_value, interpretacao)
+}
+
+# plotar via pacote gt
+library(gt)
+gt(resultados_normalidade)
+```
+
+A maioria das nossas variáveis **não** segue a distribuição normal. Isso condiz com a natureza dos nossos dados, pois não se trata de dados gerados ao acaso, mas sim dados do mundo real influenciados por políticas internacionais e normas públicas, que podem adicionar todo tipo de viés aos dados absolutos. 
+
+As variáveis `PrecoGasolina` e `PopulacaoForcaTrabalhoPercentual` são as únicas que apresentaram uma distribuição normal no nosso dataset. 
+
+# Correlação das Variáveis
+
+Observa-se que algumas variáveis pertencem à mesma categoria de medida. Pode-se selecionar variáveis com medidas sócio-econômicas e observar se há correlação entre elas no nosso dataset.
+
+### Variáveis Sócio-Econômicas
+
+```{r}
+#| warning: false
+#| fig-height: 9
+#| fig-width: 10
+
+colunas_para_correlacionar <- c(
+    "TaxaNatalidade",
+    "TaxaFertilidade",
+    "ExpectativaVida",
+    "TaxaDesemprego",
+    "MortalidadeInfantil",
+    "TaxaImpostoTotal",
+    "SalarioMinimo",
+    "Densidade"
+)
+
+# importar pacote
+library(GGally)
+ 
+# correlatograma
+ggpairs(df, columns = colunas_para_correlacionar, ggplot2::aes(fill="#3d85bc", alpha=0.6)) 
+```
+
+### Variáveis Ambientais
+
+```{r}
+#| warning: false
+#| fig-height: 9
+#| fig-width: 10
+
+colunas_para_correlacionar_amb <- c(
+    "TerraAgriculturaPercentual",
+    "AreaTerrestreKm2",
+    "EmissoesCO2",
+    "AreaFlorestadaPercentual",
+    "PopulacaoUrbana"
+)
+
+# importar pacote
+library(GGally)
+ 
+# correlatograma
+ggpairs(df, columns = colunas_para_correlacionar_amb, ggplot2::aes(fill="#3d85bc", alpha=0.6)) 
+```
+
+# Testes Estatísticos
+
+Testes estatísticos funcionam baseados na observação de várias amostras pertencentes à um grupo maior. As diferenças nas médias nos diferentes grupos que mostram a significância estatística de um teste. No caso do dataset utilizado, somente temos as amostras, sem nenhum grupo maior para fazer um teste. 
+
+A fim de contornar esse problema, é necessário formar grupos com as amostras. Para isso é necessário importar os dados de países e continentes - a comparação de grandes grupos (continentes) vai permitir a aplicabilidade dos testes.
+
+```{r}
+# importar dataset
+continents <- read.csv("https://gist.githubusercontent.com/stevewithington/20a69c0b6d2ff846ea5d35e5fc47f26c/raw/13716ceb2f22b5643ce5e7039643c86a0e0c6da6/country-and-continent-codes-list-csv.csv")
+
+colnames(continents)
+```
+
+Vamos usar a variável `Two_Letter_Country_Code` para realizar um **JOIN** entre as duas tabelas.
+
+```{r}
+# importar pacote
+library(dplyr)
+
+# vamos unir os itens do continents (direita) para os itens do df (esquerda) - por isso um LEFT JOIN
+df2 <- left_join(df,continents, by=c("Abreviacao"="Two_Letter_Country_Code"))
+
+colnames(df2)
+```
+
+Agora temos ambos os conjuntos no mesmo dataset `df2`.
+
+# Plot com ggplot
+
+A partir desses dados vamos fazer uma análise comparativa entre os continentes.
+
+### Transposição do Dataset
+
+```{r}
+#| warning: false
+
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+
+# Usando o pacote "dplyr" para filtrar os NAs da coluna Continent_Name
+df_limpo <- df2 %>%
+    filter(!is.na(Continent_Name)) %>% # o "!" significa uma negativa   
+    filter(Densidade <= 5000) # Para remover micro estados com pop. grandes
+
+
+#===============================================================================
+# Extender o dataset para que todas as variáveis possam ser acessadas
+
+# Colunas não numéricas
+colunas_id <- c(
+    "Pais",
+    "Abreviacao",
+    "CodigoDiscagem",
+    "CapitalCidadePrincipal",
+    "MaiorCidade",
+    "LinguaOficial",
+    "CodigoMoeda",               
+    "Continent_Name",
+    "Continent_Code",
+    "Country_Name",
+    "Three_Letter_Country_Code",
+    "Country_Number",
+    "Latitude",                 
+    "Longitude"                  
+)
+
+colunas_indicadores_numericos <- df_limpo %>%
+    # Seleciona todas as colunas que NÃO estão na lista de IDs
+    select(-all_of(colunas_id)) %>%
+    # E então seleciona daquelas, apenas as que são NUMÉRICAS (double/integer)
+    select(where(is.numeric)) %>%
+    colnames()
+
+df_limpo$IPC <- as.numeric(df_limpo$IPC)
+
+# função pivot_longer() -> extender o dataset na vertical 
+df_longo_indicadores <- df_limpo %>%
+    pivot_longer(
+        cols = all_of(colunas_indicadores_numericos),
+        names_to = "Indicador",
+        values_to = "Valor",        
+        values_drop_na = FALSE
+    )
+```
+
+Agora tempos o dataframe `df_longo_indicadores`, que é uma transposição do dataset orignial (manteve algumas colunas, mas outras foram transpostas em linhas). Segue a nova estrutura dele:
+
+```{r}
+gt(head(df_longo_indicadores))
+```
+
+Agora é possível selecionar um subset de características e analisar de forma junta em múltiplos boxplots, que vão apresentar as tendências dos continentes.
+
+## Criação dos Plots
+
+## Variáveis Sócio-Econômicas
+
+```{r}
+#| warning: false
+#| fig-height: 12
+
+soc_eco <- c(
+    "TaxaNatalidade",
+    "TaxaFertilidade",
+    "ExpectativaVida",
+    "TaxaDesemprego",
+    "MortalidadeInfantil",
+    "TaxaImpostoTotal",
+    "SalarioMinimo",
+    "Densidade"
+)
+
+df_longo_indicadores %>%
+    filter(Indicador %in% soc_eco) %>%
+    ggplot(aes(x = Continent_Name, y = Valor, color = Indicador, fill=Indicador)) +
+    geom_boxplot(alpha=0.6) +
+    geom_jitter( alpha=0.6) +
+    facet_wrap(~ Indicador, scales = "free", ncol = 2) +
+    theme_minimal() +
+    theme(
+        axis.text.x = element_text(angle=45,hjust=1,vjust=1),
+        legend.position = "top"
+    )
+```
+
+## Variáveis Ambientais
+
+```{r}
+#| warning: false
+#| fig-height: 12
+
+amb <- c(
+    "TerraAgriculturaPercentual",
+    "AreaTerrestreKm2",
+    "EmissoesCO2",
+    "AreaFlorestadaPercentual",
+    "PopulacaoUrbana"
+)
+
+df_longo_indicadores %>%
+    filter(Indicador %in% amb) %>%
+    ggplot(aes(x = Continent_Name, y = Valor, color = Indicador, fill=Indicador)) +
+    geom_boxplot(alpha=0.6) +
+    geom_jitter( alpha=0.6) +
+    facet_wrap(~ Indicador, scales = "free", ncol = 2) +
+    theme_minimal() +
+    theme(
+        axis.text.x = element_text(angle=45,hjust=1,vjust=1),
+        legend.position = "top"
+    )
+```
