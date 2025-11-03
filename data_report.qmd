@@ -274,10 +274,32 @@ O teste de normalidade é crucial para verificar se os dados numéricos seguem u
 
 **Teste de Shapiro-Wilk**
 
-O teste de hipótese é:
+O teste de Shapiro-Wilk fornece as seguintes informações sobre um conjunto de dados:
 
-- H0​ (Hipótese Nula): Os dados seguem uma distribuição normal.
-- H1​ (Hipótese Alternativa): Os dados não seguem uma distribuição normal.
+- 1. Os dados **seguem** uma **distribuição normal**.
+- 2. Os dados **não seguem** uma **distribuição normal**.
+
+Entende-se conjunto de dados (no caso analisado), cada coluna com um índice sobre os dados de cada país.
+
+> **Distribuição normal:** É a mais importante distribuição de probabilidade, sendo aplicada em inúmeros fenômenos e utilizada para o desenvolvimento teórico de estatística. É também conhecida como distribuição de *Gauss*, *Laplace* ou *Laplace-Gauss*.
+
+
+**Teste Básico de Shapiro-Wilk no R**
+
+Para uma análise básica do teste de normalidade, deve-se inserir o *vetor* de interesse (uma coluna numérica) com os dados a serem analisados, usa-se a função `shapiro.test()`:
+
+```{r}
+#| warning: false
+test1 <- shapiro.test(df$MortalidadeInfantil)
+test1
+```
+
+A interpretação do p-valor:
+
+- p > 0.05: Os dados podem ser considerados normais. Você pode prosseguir com testes paramétricos (como ANOVA).
+- P < 0.05: Os dados não seguem uma distribuição normal. Você deve considerar transformações ou usar testes não-paramétricos (como Kruskal-Wallis).
+
+### Teste de Shapiro-Wilk para o conjunto de dados
 
 ```{r}
 # selecionando o mesmo conjunto de dados dos meus plots
@@ -340,7 +362,25 @@ gt(resultados_normalidade)
 
 A maioria das nossas variáveis **não** segue a distribuição normal. Isso condiz com a natureza dos nossos dados, pois não se trata de dados gerados ao acaso, mas sim dados do mundo real influenciados por políticas internacionais e normas públicas, que podem adicionar todo tipo de viés aos dados absolutos. 
 
+**Exemplo de distribuição que não segue a normalidade:**
+
+```{r}
+#| warning: false
+ggplot(df, aes(x = MortalidadeInfantil))+
+    geom_density(fill = "#b5692a", alpha = 0.7, color = "white") +
+    theme_minimal()
+```
+
 As variáveis `PrecoGasolina` e `PopulacaoForcaTrabalhoPercentual` são as únicas que apresentaram uma distribuição normal no nosso dataset. 
+
+**Exemplo de distribuição normal:**
+
+```{r}
+#| warning: false
+ggplot(df, aes(x = PrecoGasolina))+
+    geom_density(fill = "#2fca49", alpha = 0.7, color = "white") +
+    theme_minimal()
+```
 
 # Correlação das Variáveis
 
@@ -545,3 +585,12 @@ df_longo_indicadores %>%
         legend.position = "top"
     )
 ```
+
+# Testes estatísticos - Parte II
+
+Anteriormente foi realizado o teste de Shapiro-Wilk, que informa se a distribuição de uma variável (ou dos resíduos de um modelo) desvia significativamente da distribuição normal. Ou seja, se na distribuição de um dos índices por país (População urbana, por exemplo) está seguindo uma distribuição normal em todos os países listados.
+
+O teste de Shapiro-Wilk é também classificado como um **teste de suposição (pré-teste/diagnóstico)**. Ele vai indicar a normalidade dos dados para realização de um **teste primário (teste de hipótese)**, como uma Análise de Variâncias (ANOVA).
+
+Como visto anteriormente, a princípio a ANOVA só pode ser realizada com dados paramétricos (dados com **distribuição normal**).
+
