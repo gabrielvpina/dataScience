@@ -388,6 +388,8 @@ Observa-se que algumas variáveis pertencem à mesma categoria de medida. Pode-s
 
 ### Variáveis Sócio-Econômicas
 
+Colunas que envolvem as informações sobre saúde pública, economia e geografia da populção.
+
 ```{r}
 #| warning: false
 #| fig-height: 9
@@ -412,6 +414,8 @@ ggpairs(df, columns = colunas_para_correlacionar, ggplot2::aes(fill="#3d85bc", a
 ```
 
 ### Variáveis Ambientais
+
+Parâmetros relacionados com as atividades agrícolas e florestais do ambiente.
 
 ```{r}
 #| warning: false
@@ -531,6 +535,8 @@ Agora é possível selecionar um subset de características e analisar de forma 
 
 ## Variáveis Sócio-Econômicas
 
+Colunas que envolvem as informações sobre saúde pública, economia e geografia da populção.
+
 ```{r}
 #| warning: false
 #| fig-height: 12
@@ -560,6 +566,8 @@ df_longo_indicadores %>%
 ```
 
 ## Variáveis Ambientais
+
+Parâmetros relacionados com as atividades agrícolas e florestais do ambiente.
 
 ```{r}
 #| warning: false
@@ -593,4 +601,56 @@ Anteriormente foi realizado o teste de Shapiro-Wilk, que informa se a distribui�
 O teste de Shapiro-Wilk é também classificado como um **teste de suposição (pré-teste/diagnóstico)**. Ele vai indicar a normalidade dos dados para realização de um **teste primário (teste de hipótese)**, como uma Análise de Variâncias (ANOVA).
 
 Como visto anteriormente, a princípio a ANOVA só pode ser realizada com dados paramétricos (dados com **distribuição normal**).
+
+## Análise de Variância (ANOVA)
+
+A partir dos resultados, seleciona-se as características que possuem uma distribuição seguindo a curva normal (`PrecoGasolina` e `PopulacaoForcaTrabalhoPercentual`).
+
+### Preço da Gasolina
+
+**Modelo básico de ANOVA**
+
+A função `aov()` do pacote básico do R é a responsável por fazer a análise de variância dos dados. Um modelo de ANOVA deve ser feito entre uma variável categórica, como `Continent_Name` (representando um grupo maior dos dados individuais) e uma variável numérica - nesse caso o preço da gasoline (`PrecoGasolina`).
+
+*Criar subset somente com a coluna `PrecoGasolina`*
+
+```{r}
+gas <- df_longo_indicadores[df_longo_indicadores$Indicador == "PrecoGasolina", ]
+```
+
+*Modelo ANOVA*
+
+```{r}
+# Criar variável modelo para armazenar os dados da função aov()
+modelo <- aov(Valor ~ Continent_Name, data = gas)
+
+# Mostrar informações do modelo
+summary(modelo)
+```
+
+A linha `aov(Valor ~ Continent_Name, data = gas)` pode ser traduzida como: Realizar uma análise de variância com os valores numéricos da coluna `Valor` em fator das categorias presentes em `Continent_Name`, sendo todas essas colunas pertencentes ao dataset `gas`.
+
+O resultado da coluna `Pr(>F)` representa o **P-Valor** da ANOVA, onde sua interpretação é que:
+
+1. Quando `Pr(>F)` > 0.05: Não há diferença entre as médias das categorias no valor escolhido
+2. Quando `Pr(>F)` < 0.05: Há diferença significativa entre as médias dos grupos analisados
+
+No caso o P-Valor da variável `modelo` é de **6.7e-08**, que representa um valor muito abaixo que 0.05, o que pode evidenciar uma diferença clara nas médias entre os grupos.
+
+Uma das desvantagens da ANOVA é a falta de especificidade na análise, não evidenciando quais grupos diferem e qual o grau de diferença.
+
+**Plot de ANOVA com `ggstatsplot`**
+
+```{r}
+#| warning: false
+#| fig-height: 6
+
+# ANOVA com pacote ggstatsplot()
+# install.packages("ggstatsplot")
+
+library(ggstatsplot)
+
+ggstatsplot::ggbetweenstats(gas, Continent_Name, Valor,  title = "Distribuição do Preço da Gasolina por Continente")
+
+```
 
