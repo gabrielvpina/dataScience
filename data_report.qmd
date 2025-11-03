@@ -639,18 +639,64 @@ No caso o P-Valor da variável `modelo` é de **6.7e-08**, que representa um val
 
 Uma das desvantagens da ANOVA é a falta de especificidade na análise, não evidenciando quais grupos diferem e qual o grau de diferença.
 
-**Plot de ANOVA com `ggstatsplot`**
+## Testes Post-Hoc (pós-teste)
+
+O Teste de Tukey (Tukey's Honestly Significant Difference - HSD) é uma ferramenta essencial que entra em ação após a realização de uma ANOVA que resultou ser estatisticamente significativa `(p<0.05)`.
+
+As colunas mais importantes são:
+
+1. `diff` (Diferença): A diferença média entre os dois grupos comparados.
+2. `lwr` e `upr` (Limites do Intervalo de Confiança): Os limites inferior e superior do intervalo de confiança para a diferença.
+3. `p adj` (p-valor ajustado): Este é o valor que você deve usar para decidir se a diferença é significativa.
+
+
+```{r}
+teste_tukey <- TukeyHSD(modelo)
+
+# Mostrar os resultados
+print(teste_tukey)
+```
+
+
+
+## Plot de ANOVA com `ggstatsplot`
+
+O teste `TukeyHSD()` apresenta a diferença média entre todas as combinações de grupos na análise. Para se ter um plot gráfico com as informações tanto da ANOVA, quanto dos grrupos que tem uma diferença significativa em suas médias, usa-se o pacote `ggstatsplot()`. 
 
 ```{r}
 #| warning: false
-#| fig-height: 6
+#| fig-height: 7
 
 # ANOVA com pacote ggstatsplot()
 # install.packages("ggstatsplot")
 
 library(ggstatsplot)
 
-ggstatsplot::ggbetweenstats(gas, Continent_Name, Valor,  title = "Distribuição do Preço da Gasolina por Continente")
+ggstatsplot::ggbetweenstats(gas, Continent_Name, Valor,  
+title = "Distribuição do Preço da Gasolina por Continente (USD)")
 
 ```
+
+É possível observar a diferença nas médias de cada continente, mas o ponto principal é o *P-valor* entre os grupos (os continentes). No caso da imagem, dois pares de continentes apresentaram um *P-valor* menor que `0.05`, eles são as comparações dos testes entre cada grupo. Por isso os valores diferentes do que a ANOVA realizada em toda a coluna - como feita na variável `modelo` apresentada anteriormente.
+
+*Criar subset  e plot com a coluna `PopulacaoForcaTrabalhoPercentual`*
+
+```{r}
+#| warning: false
+#| fig-height: 7
+ 
+# Filtrar dataset
+popForc <- df_longo_indicadores[df_longo_indicadores$Indicador == "PopulacaoForcaTrabalhoPercentual", ]
+
+# Criar plot com ggstatsplot()
+ggstatsplot::ggbetweenstats(popForc, Continent_Name, Valor,  
+title = "Distribuição da Força de Trabalho na População (%)")
+```
+
+No caso da variável `PopulacaoForcaTrabalhoPercentual`, não houve diferença significativa nas médias dos continentes. 
+
+Agora que as variáveis com distribuição normal nos dados foram analisadas com teste ANOVA, deve-se realizar os testes estatísticos **não-paramétricos**. Onde os dados selecionados não seguem a curva de Laplace-Gauss.
+
+
+# Testes estatísticos não-paramétricos
 
