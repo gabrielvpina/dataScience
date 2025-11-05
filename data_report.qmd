@@ -1,5 +1,5 @@
 ---
-title: Relatório Formal com Tidyplots
+title: Relatório Formal - Tutorial
 date: 2025-10-30
 
 author: 
@@ -700,3 +700,56 @@ Agora que as variáveis com distribuição normal nos dados foram analisadas com
 
 # Testes estatísticos não-paramétricos
 
+## Teste de Kruskal-Wallis no R
+
+O Teste de Kruskal-Wallis verifica se as distribuições (ou, mais precisamente, as medianas ou as classificações médias) dos grupos são as mesmas.
+
+**Hipótese de Teste:**
+
+1. H0​ - (Hipótese Nula): As medianas (ou classificações médias) de todos os grupos são iguais.
+2. H1​ - (Hipótese Alternativa): Pelo menos uma mediana de grupo é diferente das outras.
+
+### Código no R
+
+Para realizar essa análise, a função `kruskal.test()` no R, com a mesma sintaxe de fórmula da ANOVA (`variável_dependente` ~ `variável_agrupadora`).
+
+```{r}
+#| warning: false
+
+# Criar novo subset
+exp_vida <- df_longo_indicadores[df_longo_indicadores$Indicador == "ExpectativaVida", ]
+
+# 2. Executar o Teste de Kruskal-Wallis
+teste_kruskal <- kruskal.test(Valor ~ Continent_Name, data = exp_vida)
+
+# 3. Imprimir o resultado
+print(teste_kruskal)
+```
+
+### Interpretação dos resultados
+
+Se o p-valor (`p-value`) resultante for **menor que 0.05, se rejeita a hipótese H0​**. Isso significa que há uma diferença estatisticamente significativa entre as distribuições do Preço da Gasolina em pelo menos um continente.
+
+Se o p-valor for **maior ou igual a 0.05, a hipótese H0 não é rejeitada​**. Não há evidência de diferença significativa nas medianas
+
+## Plot de dados não-paramétricos com ggstatsplot
+
+É possível realizar a análise de dados não-paramétricos diretamente pela função `ggbetweenstats()` do pacote **ggstatsplot**. Para isso utiliza-se o argumento `type` com a opção "nonparametric" (`type=nonparametric`).
+
+```{r}
+#| warning: false
+#| fig-height: 7
+
+# Criar plot com ggstatsplot()
+ggstatsplot::ggbetweenstats(exp_vida, Continent_Name, Valor,  
+title = "Expectativa de Vida da População em Anos", 
+type = "nonparametric")
+```
+
+# Conclusão
+
+Os itens executados nesse relatório enfocam na análise estatística dos dados, passando desde sua obtenção, pré-processamento, limpeza e correlação. Essas etapas anteriores que puderam dar suporte para as análises eestatísticas realizadas.
+
+As análises descritivas também são importantes, mas não foram abordadas nesse relatório, já que foram previamente revisadas.
+
+Em uma situação prática, teríamos uma hipótese geral ou uma pergunta guia para nortear a análise dos dados. Mas os testes executados aqui podem ser de serventia na análise de dados individuais dos discentes.
