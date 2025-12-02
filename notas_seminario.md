@@ -43,10 +43,10 @@
 
 ## Mateus e israel: Naive Bayes
 
-1 () | 2 () | 3 () | 4 () | 5 ()
+1 (ok) | 2 (ok) | 3 (ok) | 4 (ok) | 5 (ok)
 
-- Nota Gabriel:
-- Nota Eric:
+- Nota Gabriel: 8.9
+- Nota Eric: 9
 
 - Nota final:
 
