@@ -39,7 +39,7 @@
 - Nota Gabriel:
 - Nota Eric: 8
 
-- Nota final:
+- Nota final: 8
 
 ## Mateus e israel: Naive Bayes
 
@@ -48,7 +48,7 @@
 - Nota Gabriel: 8.9
 - Nota Eric: 9
 
-- Nota final:
+- Nota final: 8.95
 
 ## Maria e Laiz: KNN
 
@@ -57,4 +57,4 @@
 - Nota Gabriel: 8.8
 - Nota Eric: 9.1
 
-- Nota final:
+- Nota final: 8.95
